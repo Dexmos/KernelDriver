@@ -1,0 +1,6 @@
+[submodule "tools/buildroot"]
+	path = tools/buildroot
+	url = https://github.com/buildroot/buildroot.git
+[submodule "tools/qemu"]
+	path = tools/qemu
+	url = https://github.com/dhruvvyas90/qemu-rpi-kernel.git
