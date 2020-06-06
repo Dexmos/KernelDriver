@@ -31,7 +31,7 @@ static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 static long device_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
-static int simple_mmap(struct file *filp, struct vm_area_struct *vm);
+static int my_mmap(struct file *filp, struct vm_area_struct *vm);
 void mmap_open(struct vm_area_struct *vma);
 
 static int major_num;
@@ -39,7 +39,6 @@ static int major_num;
 static int device_open_count = 0;
 
 static char *msg_buffer;
- 
 
 /* This structure points to all of the device functions */
 static struct file_operations file_ops = 
@@ -49,7 +48,7 @@ static struct file_operations file_ops =
 	.open = device_open,
 	.release = device_release,
 	.unlocked_ioctl = device_ioctl,
-	.mmap = simple_mmap
+	.mmap = my_mmap
 };
 
 
@@ -78,11 +77,6 @@ static int device_open(struct inode *inode, struct file *file)
 /* When a process reads from our device, this gets called. */
 static ssize_t device_read(struct file *flip, char *buffer, size_t size, loff_t *offset) 
 {
-	//printk(KERN_ALERT "READ This operation is not supported.\n");
-
-	//struct my_device_data *my_data = (struct my_device_data *) file->private_data;
-    //ssize_t len = (ssize_t)min(size - *offset, size);
-
     if (size <= 0)
         return 0;
 
@@ -90,10 +84,8 @@ static ssize_t device_read(struct file *flip, char *buffer, size_t size, loff_t 
     if (copy_to_user(buffer, msg_buffer, size))
         return -EFAULT;
 
-    //*offset += len;
 	vfree(msg_buffer);
     return size;
-	//return -ENOSYS;
 }
 
 /* When a process writes from our device, this gets called. */
@@ -111,7 +103,7 @@ static ssize_t device_write(struct file *flip, const char *buffer, size_t size, 
     return size;
 }
 
-static int simple_mmap(struct file *filp, struct vm_area_struct *vma)
+static int my_mmap(struct file *filp, struct vm_area_struct *vma)
  {
 	unsigned long len = vma->vm_end - vma->vm_start;
 	int ret;
@@ -140,13 +132,6 @@ static int device_release(struct inode *inode, struct file *file)
 
 static int __init Epitech_example_init(void) 
 {
-	/* Fill buffer with our message */
-	//strncpy(msg_buffer, EXAMPLE_MSG, MSG_BUFFER_LEN);
-
-	/* Set the msg_ptr to the buffer */
-	//msg_ptr = msg_buffer;
-
-	/* Try to register character device */
 	major_num = register_chrdev(0, DEVICE_NAME, &file_ops);
 
 	if (major_num < 0) {
