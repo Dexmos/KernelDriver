@@ -1,9 +1,14 @@
+
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
 #include <linux/errno.h>
+#include <linux/slab.h>
+#include <linux/vmalloc.h>
+#include <linux/mm.h>
+#include "Epitech_ioctl.h"
 
 
 
@@ -25,14 +30,16 @@ static int device_open(struct inode *, struct file *);
 static int device_release(struct inode *, struct file *);
 static ssize_t device_read(struct file *, char *, size_t, loff_t *);
 static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
+static long device_ioctl(struct file *file, unsigned int cmd, unsigned long arg);
+static int simple_mmap(struct file *filp, struct vm_area_struct *vm);
+void mmap_open(struct vm_area_struct *vma);
 
 static int major_num;
 
 static int device_open_count = 0;
 
-static char msg_buffer[MSG_BUFFER_LEN];
-
-static char *msg_ptr;
+static char *msg_buffer;
+ 
 
 /* This structure points to all of the device functions */
 static struct file_operations file_ops = 
@@ -40,7 +47,9 @@ static struct file_operations file_ops =
 	.read = device_read,
 	.write = device_write,
 	.open = device_open,
-	.release = device_release
+	.release = device_release,
+	.unlocked_ioctl = device_ioctl,
+	.mmap = simple_mmap
 };
 
 
@@ -56,7 +65,7 @@ static int device_open(struct inode *inode, struct file *file)
 	else
 	{
 		printk(KERN_ALERT "Epitech  Open \n");
-		device_open_count++;
+		//device_open_count++;
 	}
 
 	try_module_get(THIS_MODULE);
@@ -67,19 +76,59 @@ static int device_open(struct inode *inode, struct file *file)
 
 
 /* When a process reads from our device, this gets called. */
-static ssize_t device_read(struct file *flip, char *buffer, size_t len, loff_t *offset) 
+static ssize_t device_read(struct file *flip, char *buffer, size_t size, loff_t *offset) 
 {
-	printk(KERN_ALERT "READ This operation is not supported.\n");
-	return -ENOSYS;
+	//printk(KERN_ALERT "READ This operation is not supported.\n");
+
+	//struct my_device_data *my_data = (struct my_device_data *) file->private_data;
+    //ssize_t len = (ssize_t)min(size - *offset, size);
+
+    if (size <= 0)
+        return 0;
+
+    /* read data from my_data->buffer to user buffer */
+    if (copy_to_user(buffer, msg_buffer, size))
+        return -EFAULT;
+
+    //*offset += len;
+	vfree(msg_buffer);
+    return size;
+	//return -ENOSYS;
 }
 
 /* When a process writes from our device, this gets called. */
-static ssize_t device_write(struct file *flip, const char *buffer, size_t len, loff_t *offset)
+static ssize_t device_write(struct file *flip, const char *buffer, size_t size, loff_t *offset)
 {
-	printk(KERN_ALERT "Write This operation is not supported.\n");
-	return -ENOSYS;
+    if (size <= 0)
+        return 0;
+
+	if ((msg_buffer = vmalloc(size + 1)) == NULL)
+		return -1;
+    /*read data from my_data->buffer to user buffer */
+    if (copy_from_user(msg_buffer, buffer, size))
+        return -EFAULT;
+
+    return size;
 }
 
+static int simple_mmap(struct file *filp, struct vm_area_struct *vma)
+ {
+	unsigned long len = vma->vm_end - vma->vm_start;
+	int ret;
+	static char *vmalloc_area;
+	unsigned long pfn = vmalloc_to_pfn(vmalloc_area);
+
+	ret = remap_pfn_range(vma, vma->vm_start, pfn, len, vma->vm_page_prot);
+	if (ret < 0) {
+    	pr_err("could not map the address area\n");
+	}
+	return -EINVAL;
+}
+
+static long device_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+{
+	return 0;
+}
 
 
 /* Called when a process closes our device */
@@ -92,10 +141,10 @@ static int device_release(struct inode *inode, struct file *file)
 static int __init Epitech_example_init(void) 
 {
 	/* Fill buffer with our message */
-	strncpy(msg_buffer, EXAMPLE_MSG, MSG_BUFFER_LEN);
+	//strncpy(msg_buffer, EXAMPLE_MSG, MSG_BUFFER_LEN);
 
 	/* Set the msg_ptr to the buffer */
-	msg_ptr = msg_buffer;
+	//msg_ptr = msg_buffer;
 
 	/* Try to register character device */
 	major_num = register_chrdev(0, DEVICE_NAME, &file_ops);
