@@ -32,8 +32,7 @@ static int device_open_count = 0;
 static char *msg_buffer;
 
 /* This structure points to all of the device functions */
-static struct file_operations file_ops = 
-{
+static struct file_operations file_ops = {
 	.read = device_read,
 	.write = device_write,
 	.open = device_open,
@@ -47,10 +46,10 @@ static int device_open(struct inode *inode, struct file *file)
 {
 	/* If device is open, return busy */
 	if (device_open_count) {
-		printk(KERN_ALERT " Epitech Could not Open \n");
+		printk(KERN_ALERT " Driver Could not Open \n");
 		return (-EBUSY);
 	} else {
-		printk(KERN_ALERT "Epitech  Open \n");
+		printk(KERN_ALERT "Driver  Open \n");
 		//device_open_count++; // We don't want to return busy for this time
 	}
 	try_module_get(THIS_MODULE);
@@ -122,7 +121,7 @@ static int __init Epitech_example_init(void)
 		printk(KERN_ALERT "Could not register device: %d\n", major_num);
 		return (major_num);
 	} else {
-		printk(KERN_INFO  " Hello Epitech_example module loaded with device major number %d\n", major_num);
+		printk(KERN_INFO  " Hello your driver module loaded with device major number %d\n", major_num);
 		return (0);
 	}
 }
