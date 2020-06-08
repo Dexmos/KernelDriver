@@ -121,7 +121,7 @@ static int __init Epitech_example_init(void)
 		printk(KERN_ALERT "Could not register device: %d\n", major_num);
 		return (major_num);
 	} else {
-		printk(KERN_INFO  " Hello your driver module loaded with device major number %d\n", major_num);
+		printk(KERN_INFO  " Hello your driver module is loaded with device major number : %d\n", major_num);
 		return (0);
 	}
 }
