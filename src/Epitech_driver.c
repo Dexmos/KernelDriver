@@ -10,16 +10,10 @@
 #include <linux/mm.h>
 #include "Epitech_ioctl.h"
 
-
-
 MODULE_LICENSE("GPL");
-
 MODULE_AUTHOR("TOTO");
-
 MODULE_DESCRIPTION("Example Module");
-
 MODULE_VERSION("0.01");
-
 
 #define DEVICE_NAME "Epitech_driver"
 #define EXAMPLE_MSG "Hello, World!\n"
@@ -48,7 +42,6 @@ static struct file_operations file_ops =
 	.mmap = device_mmap
 };
 
-
 /* Called when a process opens our device */
 static int device_open(struct inode *inode, struct file *file) 
 {
@@ -63,8 +56,6 @@ static int device_open(struct inode *inode, struct file *file)
 	try_module_get(THIS_MODULE);
 	return (0);
 }
-
-
 
 /* When a process reads from our device, this gets called. */
 static ssize_t device_read(struct file *flip, char *buffer, size_t size, loff_t *offset) 
@@ -97,7 +88,7 @@ static ssize_t device_write(struct file *flip, const char *buffer, size_t size, 
 }
 
 static int device_mmap(struct file *filp, struct vm_area_struct *vma)
- {
+{
 	unsigned long len = vma->vm_end - vma->vm_start;
 	int ret;
 	static char *vmalloc_area;
@@ -105,7 +96,7 @@ static int device_mmap(struct file *filp, struct vm_area_struct *vma)
 
 	ret = remap_pfn_range(vma, vma->vm_start, pfn, len, vma->vm_page_prot);
 	if (ret < 0) {
-    	pr_err("could not map the address area\n");
+		printk(KERN_ALERT "could not map the address area\n");
 		return (-EIO);
 	}
 	return (-EINVAL);
@@ -141,7 +132,6 @@ static void __exit Epitech_example_exit(void)
 	/* Remember  we have to clean up after ourselves. Unregister the character device. */
 	unregister_chrdev(major_num, DEVICE_NAME);
 	printk(KERN_INFO "Goodbye, World!\n");
-
 }
 
 /* Register module functions */
