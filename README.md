@@ -1,6 +1,6 @@
 # KernelDriver
 
-The goal of this project is to exchange data (like char*, struct) between UserSpace and Linux-Kernel.
+The goal of this project is to exchange data (like char*, struct...) between UserSpace and Linux-Kernel.
 
 ## How to try - Linux
 
