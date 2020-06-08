@@ -15,7 +15,7 @@
 #define USER_BUFFER_LEN 1024*1024*3 /* Your driver has the same space */ 
 
 
-#define DEVICE_NAME "/dev/Epitech_example"
+#define DEVICE_NAME "/dev/Epitech_driver"
 
 #define PATTERN_PATH "./PATTERN.jpg"
 
