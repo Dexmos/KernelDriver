@@ -27,7 +27,7 @@ make fclean
   Makefile variables.
 </p>
 
-You can find your MAJOR value at the first compilation using *make all* :
+You can find your MAJOR number at the first compilation using *make all* :
 <p align="center">
   <img width="1000" height="200" src="https://github.com/Dexmos/KernelDriver/blob/master/img/MakeFileOutput.png">
 </p>
